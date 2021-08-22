@@ -4,38 +4,41 @@ The tldr projects lead me to want some extended notes on specific tools
 
 ## Features Roadmap
 
-| Base Cmd   | Target        | Parameters      | Function                                |
-| ---------- | ------------- | --------------- | --------------------------------------- |
-| new        | repository    | -r,--repository | Create a new repository                 |
-| new        | section       | -s,--section    | Create a new section directory          |
-| new        | tool          | -s,--section    | Create a new tool directory             |
-|            |               | -t,--tool       |                                         |
-| new        | note          | -s,--section    | Create a new note in a section          |
-|            |               | -t,--tool       |                                         |
-|            |               | -n,--note       |                                         |
-| delete     | note          | -s,--section    | Delete a note from a section            |
-|            |               | -t,--tool       |                                         |
-|            |               | -n,--note       |                                         |
-| delete     | section       | -s,--section    | Delete an entire section                |
-| edit       | note          | -s,--section    | Edit a note in a section                |
-|            |               | -t,--tool       |                                         |
-|            |               | -n,--note       |                                         |
-| rename     | section       | -s,--section    | Rename a section                        |
-| rename     | tool          | -s,--section    | Rename a tool                           |
-|            |               | -t,--tool       |                                         |
-| rename     | note          | -s,--section    | Rename a note in a section              |
-|            |               | -t,--tool       |                                         |
-|            |               | -n,--note       |                                         |
-| {toolname} |               |                 | View a note for a specific tool         |
-| {toolname} |               | -s,--section    | View a note for a specific section/tool |
-| add        | repository    | -r,--repository | Fetch a remote repository               |
-| update     |               |                 | Update all remote repositories          |
-| search     | {search term} |                 | Search for matching notes               |
+| Complete | Base Cmd   | Target        | Parameters      | Function                                |
+| ---------| ---------- | ------------- | --------------- | --------------------------------------- |
+|          | new        | repository    | -r,--repository | Create a new repository                 |
+|          | new        | tool          | -t,--tool       | Create a new tool entry                 |
+|          | new        | section       | -t, --tool      | Create a new section for a tool         |
+|          |            |               | -s, --section   |                                         |
+|          | new        | example       | -e, --example   | Create a new example for a tool/section |
+|          |            |               | -s, --section   |                                         |
+|          |            |               | -t, --tool      |                                         |
+|          | delete     | tool          | -t,--tool       | Delete a tool entry                     |
+|          | delete     | section       | -s, --section   |                                         |
+|          |            |               | -t, --tool      |                                         |
+|          | delete     | example       | -e, --example   |                                         |
+|          |            |               | -s, --section   |                                         |
+|          |            |               | -t, --tool      |                                         |
+|          | edit       | tool          | -t,--tool       | Edit a tool entry                       |
+|          | rename     | tool          | -t,--tool       | Rename a tool                           |
+|   mvp    | show|view  | {toolname}    |                 | View information for a tool             |
+|          | add        | repository    | -r,--repository | Fetch a remote repository               |
+|          | update     |               |                 | Update all remote repositories          |
+|          | search     | {search term} |                 | Search for matching notes               |
+|          | list       | tool          | -r, --repository| List the tools in the repository        |
+|          |            |               |                 |   - default to the primary              |
+|          |            | section       | -r, --repository| List the sections for a tool            |
+|          |            |               | -t, --tool      |                                         |
+|          |            | example       | -r, --repository| List the examples for a tool/section    |
+|          |            |               | -t, --tool      |                                         |
+|          |            |               | -s, --section   |                                         |
+|          |            | repository    |                 | List the repositories                   |
 
 ## Example Usage
 
 ```bash
-tool-notes {toolname}
+tool-notes view {toolname}
+tool-notes show {toolname}
   # this will display a prompt of Notes for that specific tool name in the default section
   # if the tool name isn't in the default section, search all other sections
 tool-notes new section --section Personal_Projects

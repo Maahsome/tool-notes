@@ -6,6 +6,7 @@ require (
 	github.com/AlecAivazis/survey/v2 v2.2.15
 	github.com/Maahsome/go-term-markdown v0.1.7
 	github.com/fsnotify/fsnotify v1.5.0 // indirect
+	github.com/miracl/conflate v1.2.1
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/nathan-fiscaletti/consolesize-go v0.0.0-20210105204122-a87d9f614b9d
 	github.com/sirupsen/logrus v1.8.1
@@ -15,6 +16,7 @@ require (
 	golang.org/x/sys v0.0.0-20210820121016-41cdb8703e55 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/kubectl v0.22.1
 )
 
 replace github.com/Maahsome/go-term-markdown => /Users/christopher.maahs/src/cmaahsProjects/go-term-markdown

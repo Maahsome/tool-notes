@@ -29,6 +29,12 @@ type (
 		Language        string `yaml:"language"`
 		Script          string `yaml:"script"`
 	}
+	fileAnswer struct {
+		FileName string `survey:"filename"` // or you can tag fields to match a specific name
+	}
+	toolAnswer struct {
+		ToolName string `survey:"toolname"` // or you can tag fields to match a specific name
+	}
 	sectionAnswer struct {
 		SectionName string `survey:"sectionname"` // or you can tag fields to match a specific name
 	}
@@ -38,6 +44,8 @@ type (
 )
 
 var (
+	fileAnswers    = &fileAnswer{}
+	toolAnswers    = &toolAnswer{}
 	sectionAnswers = &sectionAnswer{}
 	exampleAnswers = &exampleAnswer{}
 )

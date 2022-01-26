@@ -17,15 +17,17 @@ package cmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 
 	"github.com/AlecAivazis/survey/v2"
 	markdown "github.com/Maahsome/go-term-markdown"
+	"github.com/miracl/conflate"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/nathan-fiscaletti/consolesize-go"
 	"github.com/sirupsen/logrus"
@@ -40,20 +42,54 @@ var viewCmd = &cobra.Command{
 	
 	> tool-notes view jq`,
 	Run: func(cmd *cobra.Command, args []string) {
-		tool := args[0]
+		var err error
+		var tool string
+
+		if len(args) == 0 {
+			// survey for tool name
+			_, toolArray := getToolList()
+			// the questions to ask
+			var toolSurvey = []*survey.Question{
+				{
+					Name: "toolname",
+					Prompt: &survey.Select{
+						Message: "Choose a Tool:",
+						Options: toolArray,
+					},
+				},
+			}
+
+			opts := survey.WithStdio(os.Stdin, os.Stderr, os.Stderr)
+
+			// perform the questions
+			if err = survey.Ask(toolSurvey, toolAnswers, opts); err != nil {
+				logrus.Fatal("No section on the list")
+			}
+			fmt.Printf("Selected Tool: %s\n", toolAnswers.ToolName)
+			tool = toolAnswers.ToolName
+		} else {
+			tool = args[0]
+		}
+
 		exists, yamlFile := findTool(tool)
 		if exists {
-			yamlData, err := ioutil.ReadFile(yamlFile[0])
+			var toolNote ToolNote
+
+			mergedYaml, err := conflate.FromFiles(yamlFile...)
 			if err != nil {
-				fmt.Printf("Error reading YAML file: %s\n", err)
+				logrus.WithError(err).Error("Failed to merge YAML Files")
 				return
 			}
 
-			var toolNote ToolNote
-			err = yaml.Unmarshal(yamlData, &toolNote)
+			rawYaml, err := mergedYaml.MarshalYAML()
 			if err != nil {
-				fmt.Printf("Error parsing YAML file: %s\n", err)
+				fmt.Println(err)
+				return
 			}
+			if err := yaml.Unmarshal(rawYaml, &toolNote); err != nil {
+				logrus.Info("DEBUG: failed to reparse our base structure")
+			}
+
 			var sectionArray []string
 			for _, v := range toolNote.Tool.Sections {
 				sectionArray = append(sectionArray, v.SectionName)
@@ -160,14 +196,18 @@ func fetchToolFiles(dir_path string, tool_name string) []string {
 
 	filepath.Walk(dir_path, func(path string, f os.FileInfo, err error) error {
 
-		tool_file := fmt.Sprintf("%s/%s.yaml", path, tool_name)
-		// logrus.Info(fmt.Sprintf("tool_file: %s", tool_file))
-		if _, err := os.Stat(tool_file); err != nil {
-			if os.IsNotExist(err) {
-				return nil
+		if !strings.Contains(path, ".git") {
+			if f.IsDir() {
+				tool_file := fmt.Sprintf("%s/%s.yaml", path, tool_name)
+				// logrus.Info(fmt.Sprintf("tool_file: %s", tool_file))
+				if _, err := os.Stat(tool_file); err != nil {
+					if os.IsNotExist(err) {
+						return nil
+					}
+				}
+				files = append(files, tool_file)
 			}
 		}
-		files = append(files, tool_file)
 		return nil
 	})
 
@@ -188,12 +228,54 @@ func findTool(t string) (bool, []string) {
 	// 		return false, ""
 	// 	}
 	// }
-	return true, tool_list
+	if len(tool_list) == 0 {
+		return false, []string{}
+	} else {
+		return true, tool_list
+	}
 }
 
+func getToolList() (bool, []string) {
+	home, err := homedir.Dir()
+	if err != nil {
+		logrus.Error("Could not locate the HOME directory")
+		return false, []string{}
+	}
+	toolPath := fmt.Sprintf("%s/.config/tool-notes/", home)
+
+	tools := []string{}
+
+	filepath.Walk(toolPath, func(path string, f os.FileInfo, err error) error {
+
+		if !strings.Contains(path, ".git") {
+			if !f.IsDir() {
+				if strings.HasSuffix(f.Name(), ".yaml") {
+					tools = append(tools, strings.TrimSuffix(f.Name(), ".yaml"))
+				}
+			}
+		}
+		return nil
+	})
+
+	if len(tools) == 0 {
+		return false, []string{}
+	} else {
+		sort.Strings(tools)
+		return true, removeDuplicateValues(tools)
+	}
+}
 func init() {
 	rootCmd.AddCommand(viewCmd)
 
+	conflate.Unmarshallers = conflate.UnmarshallerMap{
+		".json": {conflate.JSONUnmarshal},
+		".jsn":  {conflate.JSONUnmarshal},
+		".yaml": {conflate.YAMLUnmarshal},
+		".yml":  {conflate.YAMLUnmarshal},
+		".toml": {conflate.TOMLUnmarshal},
+		".tml":  {conflate.TOMLUnmarshal},
+		"":      {conflate.JSONUnmarshal, conflate.YAMLUnmarshal, conflate.TOMLUnmarshal},
+	}
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command

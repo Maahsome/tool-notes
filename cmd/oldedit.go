@@ -21,15 +21,15 @@ const (
 	chunksize int = 1024
 )
 
-// editCmd represents the edit command
-var editCmd = &cobra.Command{
-	Use:   "edit",
+// oldeditCmd represents the edit command
+var oldeditCmd = &cobra.Command{
+	Use:   "oldedit",
 	Short: "Edit a tool notes yaml file",
 	Long: `EXAMPLE
-	
+
 	To edit the notes for tool 'jq'
 
-	> tool-notes edit jq`,
+	> tool-notes oldedit jq`,
 	Run: func(cmd *cobra.Command, args []string) {
 		tool := args[0]
 		exists, yamlFile := findTool(tool)
@@ -127,5 +127,5 @@ func openFile(name string) (byteCount int, buffer *bytes.Buffer) {
 }
 
 func init() {
-	rootCmd.AddCommand(editCmd)
+	rootCmd.AddCommand(oldeditCmd)
 }

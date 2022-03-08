@@ -40,6 +40,7 @@ type state struct {
 	info       *info
 	resources  resources
 	stopChans  map[string]chan int
+	example    *tview.TextView
 }
 
 const (
@@ -171,16 +172,51 @@ func (t *Tui) initPanels() {
 	// 		AddItem(tview.NewBox().SetBorder(true).SetTitle("Editor"), 0, 1, false), 0, 10, true).
 	// 	AddItem(location, 3, 1, false)
 
+	exampleLabel := tview.NewTextView().SetTextColor(tcell.ColorWhite).
+		SetText("Example Name")
+	scriptLabel := tview.NewTextView().SetTextColor(tcell.ColorWhite).
+		SetText("Script")
+	exampleText := tview.NewTextView()
+	exampleText.SetWordWrap(true)
+	exampleText.SetWrap(true)
+	exampleText.SetDynamicColors(true)
+	exampleText.SetBorder(true)
+	exampleText.SetBorderColor(tcell.ColorDeepSkyBlue)
+	t.state.example = exampleText
+
+	scriptText := tview.NewTextView()
+	scriptText.SetWordWrap(true)
+	scriptText.SetWrap(true)
+	scriptText.SetDynamicColors(true)
+	scriptText.SetBorder(true)
+	scriptText.SetBorderColor(tcell.ColorDeepSkyBlue)
+
+	gridBox := tview.NewGrid()
+	gridBox.SetBorder(true)
+	gridBox.SetBorderColor(tcell.ColorDeepSkyBlue)
+	gridBox.Box.SetBackgroundColor(tcell.ColorBlack)
+	gridBox.SetTitle("[[ Editor ]]")
+
+	colFlex := tview.NewFlex().SetDirection(tview.FlexColumn)
+	// colFlex.SetBackgroundColor(grid.GetBackgroundColor())
+	rowFlex := tview.NewFlex().SetDirection(tview.FlexRow)
+	// rowFlex.SetBackgroundColor(grid.GetBackgroundColor())
+
 	editGrid := tview.NewFlex().SetDirection(tview.FlexRow).
 		AddItem(info, 6, 1, false).
 		AddItem(address, 2, 1, false).
 		AddItem(command, 3, 1, false).
-		AddItem(tview.NewFlex().SetDirection(tview.FlexColumn).
-			AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+		AddItem(colFlex.
+			AddItem(rowFlex.
 				AddItem(sections, 0, 1, true).
 				AddItem(examples, 0, 1, false), 0, 1, false).
-			AddItem(tview.NewBox().SetBorder(true).SetTitle("Editor"), 0, 1, false), 0, 1, false).
-		AddItem(tview.NewBox().SetBorder(true).SetTitle("location"), 3, 1, false)
+			AddItem(gridBox.
+				AddItem(tview.NewFlex().SetDirection(tview.FlexRow).
+					AddItem(exampleLabel, 1, 1, false).
+					AddItem(exampleText, 3, 1, false).
+					AddItem(scriptLabel, 1, 1, false).
+					AddItem(scriptText, 0, 4, false), 0, 0, 1, 1, 0, 0, false), 0, 1, false), 0, 1, true).
+		AddItem(location, 3, 1, false)
 
 		// flex := tview.NewFlex().SetDirection(tview.FlexRow).
 		// AddItem(tview.NewFlex().SetDirection(tview.FlexColumn).

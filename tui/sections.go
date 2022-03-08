@@ -115,8 +115,17 @@ func (i *sections) setKeybinding(t *Tui) {
 				tempRow := row + 1
 				i.Select(tempRow, 0)
 				t.examplePanel().setEntries(t, enterExample)
+				t.examplePanel().Select(0, 0)
 				i.Select(row, 0)
+				t.state.example.SetText(t.state.resources.examples[t.state.resources.exampleRows[0]].Name)
 			}
+			// selectedRepository := t.selectedRepository()
+			// selectedTool := t.selectedTool()
+			// if selectedRepository != nil && selectedTool != nil && selectedSection != nil {
+			// 	if t.state.location != nil {
+			// 		t.state.location.update(fmt.Sprintf("\n [white]%s / %s (.Section=%s)", selectedRepository.Name, selectedTool.Name, selectedSection.Name))
+			// 	}
+			// }
 		case tcell.KeyUp:
 			row, _ := t.sectionPanel().GetSelection()
 			common.Logger.WithFields(logrus.Fields{
@@ -127,8 +136,18 @@ func (i *sections) setKeybinding(t *Tui) {
 				tempRow := row - 1
 				i.Select(tempRow, 0)
 				t.examplePanel().setEntries(t, enterExample)
+				t.examplePanel().Select(0, 0)
 				i.Select(row, 0)
+				t.state.example.SetText(t.state.resources.examples[t.state.resources.exampleRows[0]].Name)
 			}
+			// selectedRepository := t.selectedRepository()
+			// selectedTool := t.selectedTool()
+			// currentSelectedSection := t.selectedSection()
+			// if selectedRepository != nil && selectedTool != nil && currentSelectedSection != nil {
+			// 	if t.state.location != nil {
+			// 		t.state.location.update(fmt.Sprintf("\n [white]%s / %s (.Section=%s)", selectedRepository.Name, selectedTool.Name, currentSelectedSection.Name))
+			// 	}
+			// }
 		case tcell.KeyRight:
 			common.Logger.WithFields(logrus.Fields{
 				"unit":     "sections",
@@ -252,15 +271,24 @@ func (i *sections) buildPanelData(t *Tui, operation int) {
 			logrus.Info("DEBUG: failed to reparse our base structure")
 		}
 
-		// var sectionArray []string
-		for _, v := range toolNote.Tool.Sections {
-			// sectionArray = append(sectionArray, v.SectionName)
-			t.state.resources.sections[v.SectionName] = &section{
-				Name:     v.SectionName,
-				Examples: v.Examples,
+		toolNames := make([]string, 0, len(toolNote.Tool.Sections))
+		toolList := make(map[string]*section)
+		for _, k := range toolNote.Tool.Sections {
+			toolNames = append(toolNames, k.SectionName)
+			toolList[k.SectionName] = &section{
+				Name:     k.SectionName,
+				Examples: k.Examples,
 			}
+		}
+		sort.Strings(toolNames)
+
+		// var sectionArray []string
+		// for _, v := range toolNote.Tool.Sections {
+		for _, v := range toolNames {
+			// sectionArray = append(sectionArray, v.SectionName)
+			t.state.resources.sections[v] = toolList[v]
 			// t.state.resources.sectionRows[rowCount] = fmt.Sprintf("%s/%s", selectedTool.Path, selectedTool.Name)
-			t.state.resources.sectionRows[rowCount] = v.SectionName
+			t.state.resources.sectionRows[rowCount] = v
 			rowCount++
 		}
 	}

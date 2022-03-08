@@ -67,6 +67,12 @@ func (i *tools) setKeybinding(t *Tui) {
 		selectedTool := t.selectedTool()
 		switch event.Key() {
 		case tcell.KeyEnter:
+			selectedRepository := t.selectedRepository()
+			if selectedRepository != nil {
+				if t.state.location != nil {
+					t.state.location.update(fmt.Sprintf("\n [white]%s / %s", selectedRepository.Name, selectedTool.Name))
+				}
+			}
 			t.switchPage("edit")
 			// if selectedFolder != nil {
 			// 	if selectedFolder.Type == vaultFolder {
@@ -391,6 +397,9 @@ func (i *tools) buildPanelData(t *Tui, operation int) {
 				t.state.resources.toolRows[rowCount] = fmt.Sprintf("%s/%s", fmt.Sprintf("/Users/christopher.maahs/.config/tool-notes/%s", selectedRepository.Name), f.Name())
 				rowCount++
 			}
+		}
+		if t.state.location != nil {
+			t.state.location.update(fmt.Sprintf("\n [white]%s", selectedRepository.Name))
 		}
 	}
 }

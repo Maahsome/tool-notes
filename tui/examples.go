@@ -92,6 +92,7 @@ func (i *examples) setKeybinding(t *Tui) {
 				"function": "keystrokes",
 			}).Debug(fmt.Sprintf("down examples/row: %d/%d", len(t.state.resources.examples), row))
 
+			t.state.example.SetText(t.state.resources.examples[t.state.resources.exampleRows[row]].Name)
 			// if row < len(t.state.resources.tools) {
 			// 	tempRow := row + 1
 			// 	i.Select(tempRow, 0)
@@ -104,6 +105,7 @@ func (i *examples) setKeybinding(t *Tui) {
 				"unit":     "examples",
 				"function": "keystrokes",
 			}).Debug(fmt.Sprintf("up examples/row: %d/%d", len(t.state.resources.examples), row))
+			t.state.example.SetText(t.state.resources.examples[t.state.resources.exampleRows[row]].Name)
 			// if row > 0 {
 			// 	tempRow := row - 1
 			// 	i.Select(tempRow, 0)
@@ -231,6 +233,13 @@ func (i *examples) buildPanelData(t *Tui, operation int) {
 			// t.state.resources.sectionRows[rowCount] = fmt.Sprintf("%s/%s", selectedTool.Path, selectedTool.Name)
 			t.state.resources.exampleRows[rowCount] = v.Description
 			rowCount++
+		}
+		selectedRepository := t.selectedRepository()
+		selectedTool := t.selectedTool()
+		if selectedRepository != nil && selectedTool != nil && selectedSection != nil {
+			if t.state.location != nil {
+				t.state.location.update(fmt.Sprintf("\n [white]%s / %s (.Section=%s)", selectedRepository.Name, selectedTool.Name, selectedSection.Name))
+			}
 		}
 	}
 }
